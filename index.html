@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Barcelona amb Nens · Activitats per a Famílies</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:#FFFDF7;color:#1A1A2E;min-height:100vh;}
+
+/* PASSWORD GATE */
+#gate{position:fixed;inset:0;background:#1A3C5E;display:flex;align-items:center;justify-content:center;z-index:1000;padding:24px;}
+.gate-card{background:#fff;border-radius:24px;padding:48px 40px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.gate-icon{font-size:48px;margin-bottom:16px;}
+.gate-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#1A3C5E;margin-bottom:8px;}
+.gate-sub{color:#6B7280;font-size:15px;margin-bottom:28px;line-height:1.5;}
+.gate-input{width:100%;padding:14px 16px;border:2px solid #E5E0D8;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;color:#1A1A2E;background:#FFFDF7;margin-bottom:12px;text-align:center;letter-spacing:.1em;}
+.gate-input:focus{outline:none;border-color:#1A3C5E;}
+.gate-btn{width:100%;padding:14px;background:#E8553E;color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:background .2s;}
+.gate-btn:hover{background:#d44530;}
+.gate-err{color:#B91C1C;font-size:13px;margin-top:10px;display:none;}
+
+/* MAIN APP */
+#app{display:none;}
+.header{background:#1A3C5E;position:relative;overflow:hidden;}
+.blob{position:absolute;border-radius:50%;background:#F5A623;opacity:.08;pointer-events:none;}
+.blob1{width:380px;height:380px;top:-100px;right:-60px;}
+.blob2{width:180px;height:180px;bottom:-50px;right:220px;}
+.header-inner{max-width:1100px;margin:0 auto;padding:40px 24px 56px;position:relative;z-index:2;}
+.lang-row{display:flex;gap:8px;margin-bottom:28px;}
+.lang-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 14px;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.lang-btn.active,.lang-btn:hover{background:#F5A623;border-color:#F5A623;color:#1A3C5E;font-weight:600;}
+.header-tag{display:inline-block;background:#F5A623;color:#1A3C5E;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 12px;border-radius:4px;margin-bottom:14px;}
+.header-h1{font-family:'Playfair Display',serif;font-size:clamp(32px,6vw,68px);font-weight:900;color:#fff;line-height:1.05;margin-bottom:14px;}
+.header-h1 em{color:#F5A623;font-style:normal;}
+.header-sub{color:rgba(255,255,255,.7);font-size:17px;font-weight:300;max-width:500px;line-height:1.6;}
+.search-wrap{max-width:1100px;margin:-28px auto 0;padding:0 24px;position:relative;z-index:10;}
+.search-card{background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(26,60,94,.14);padding:28px 28px 24px;}
+.api-strip{display:flex;align-items:center;gap:10px;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;padding:10px 16px;margin-bottom:20px;font-size:13px;color:#065F46;}
+.api-strip input{flex:1;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:#065F46;}
+.api-strip input:focus{outline:none;}
+.api-strip button{background:none;border:none;cursor:pointer;font-size:16px;color:#6B7280;padding:0 4px;}
+.filters-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:18px;}
+@media(max-width:700px){.filters-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:440px){.filters-grid{grid-template-columns:1fr;}}
+.filter-group label{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;margin-bottom:7px;}
+.filter-group select,.filter-group input[type=text]{width:100%;padding:10px 13px;border:1.5px solid #E5E0D8;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:#1A1A2E;background:#FFFDF7;transition:border-color .2s;-webkit-appearance:none;}
+.filter-group select:focus,.filter-group input[type=text]:focus{outline:none;border-color:#1A3C5E;}
+.toggle-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.chip{display:flex;align-items:center;gap:5px;padding:8px 14px;border:1.5px solid #E5E0D8;border-radius:30px;font-size:13px;font-weight:500;cursor:pointer;background:#FFFDF7;transition:all .18s;user-select:none;}
+.chip.on{background:#1A3C5E;border-color:#1A3C5E;color:#fff;}
+.search-btn{width:100%;padding:15px;background:#E8553E;color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;}
+.search-btn:hover:not(:disabled){background:#d44530;transform:translateY(-1px);box-shadow:0 4px 16px rgba(232,85,62,.3);}
+.search-btn:disabled{background:#ccc;cursor:not-allowed;}
+.results-section{max-width:1100px;margin:40px auto 60px;padding:0 24px;}
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.results-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#1A3C5E;}
+.results-count{font-size:14px;color:#6B7280;}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;}
+.acard{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.06);transition:transform .2s,box-shadow .2s;border:1px solid #E5E0D8;}
+.acard:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(26,60,94,.12);}
+.card-top{padding:18px 18px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.card-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.badges{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-end;}
+.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.04em;}
+.b-free{background:#D1FAE5;color:#065F46;}.b-paid{background:#FEF3C7;color:#92400E;}
+.b-in{background:#DBEAFE;color:#1E40AF;}.b-out{background:#D1FAE5;color:#065F46;}
+.b-wknd{background:#EDE9FE;color:#5B21B6;}.b-wkdy{background:#F3F4F6;color:#374151;}
+.card-body{padding:14px 18px 18px;}
+.card-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1A3C5E;margin-bottom:8px;line-height:1.3;}
+.card-desc{font-size:14px;color:#6B7280;line-height:1.65;margin-bottom:14px;}
+.card-tip{background:#F7EDD8;border-radius:8px;padding:9px 13px;font-size:13px;color:#1A3C5E;margin-bottom:14px;}
+.card-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:#6B7280;border-top:1px solid #E5E0D8;padding-top:12px;}
+.meta-item{display:flex;align-items:center;gap:3px;}
+.meta-item strong{color:#1A1A2E;}
+.reg-btn{display:block;width:100%;margin-top:14px;padding:10px 14px;background:#1A3C5E;color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-align:center;cursor:pointer;text-decoration:none;transition:background .2s;}
+.reg-btn:hover{background:#E8553E;}
+.reg-btn-none{display:block;width:100%;margin-top:14px;padding:10px 14px;background:#F3F4F6;color:#9CA3AF;border-radius:10px;font-size:13px;text-align:center;}
+.loading-box{text-align:center;padding:60px 24px;}
+.spinner{width:38px;height:38px;border:3px solid #E5E0D8;border-top-color:#E8553E;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-txt{color:#6B7280;font-size:15px;}
+.err-box{background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:18px 22px;color:#B91C1C;font-size:14px;}
+.empty-box{text-align:center;padding:60px 24px;color:#6B7280;}
+.empty-icon{font-size:50px;margin-bottom:14px;}
+.empty-box h3{font-family:'Playfair Display',serif;font-size:22px;color:#1A3C5E;margin-bottom:8px;}
+footer{background:#1A3C5E;color:rgba(255,255,255,.5);text-align:center;padding:22px;font-size:13px;}
+footer strong{color:#F5A623;}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-icon">🏙️</div>
+    <div class="gate-title">Barcelona amb Nens</div>
+    <div class="gate-sub">Introdueix la contrasenya per accedir a l'app d'activitats familiars.</div>
+    <input class="gate-input" type="password" id="pw-input" placeholder="········" onkeydown="if(event.key==='Enter')checkPw()"/>
+    <button class="gate-btn" onclick="checkPw()">Entrar →</button>
+    <div class="gate-err" id="pw-err">Contrasenya incorrecta. Torna-ho a provar.</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="header">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="header-inner">
+      <div class="lang-row">
+        <button class="lang-btn active" onclick="setLang('ca')">CA</button>
+        <button class="lang-btn" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+      </div>
+      <div class="header-tag" id="h-tag">Famílies de Barcelona</div>
+      <div class="header-h1" id="h-title">Troba <em>activitats</em><br>per als teus fills</div>
+      <div class="header-sub" id="h-sub">Activitats per a nens a Barcelona, filtrades per edat, barri i pressupost. Prioritzem les gratuïtes.</div>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-card">
+
+      <!-- API KEY STRIP -->
+      <div class="api-strip" id="api-strip">
+        <span>🔑</span>
+        <input type="password" id="api-key-input" placeholder="Enganxa la teva Anthropic API key (sk-ant-...)" oninput="saveApiKey(this.value)"/>
+        <button onclick="toggleApiVis()" title="Mostrar/amagar">👁</button>
+      </div>
+
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label id="l-age">Edat del nen/a</label>
+          <select id="f-age"></select>
+        </div>
+        <div class="filter-group">
+          <label id="l-district">Districte</label>
+          <select id="f-district"></select>
+        </div>
+        <div class="filter-group">
+          <label id="l-duration">Durada</label>
+          <select id="f-duration"></select>
+        </div>
+        <div class="filter-group">
+          <label id="l-keyword">Paraula clau</label>
+          <input type="text" id="f-keyword" placeholder="Ex: música, natura, art…" onkeydown="if(event.key==='Enter')doSearch()"/>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="chip on" id="chip-free"    onclick="toggleChip('free')"   >🆓 <span id="c-free">Gratuïtes primer</span></div>
+        <div class="chip"    id="chip-outdoor" onclick="toggleChip('outdoor')">☀️ <span id="c-outdoor">Aire lliure</span></div>
+        <div class="chip"    id="chip-indoor"  onclick="toggleChip('indoor')" >🏠 <span id="c-indoor">Interior</span></div>
+        <div class="chip"    id="chip-weekend" onclick="toggleChip('weekend')">📅 <span id="c-weekend">Cap de setmana</span></div>
+        <div class="chip"    id="chip-weekday" onclick="toggleChip('weekday')">🗓️ <span id="c-weekday">Dies feiners</span></div>
+      </div>
+
+      <button class="search-btn" id="search-btn" onclick="doSearch()">
+        🔍 <span id="btn-label">Buscar activitats</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="results-section" id="results-section" style="display:none">
+    <div class="results-header">
+      <div class="results-title" id="r-title">Activitats trobades</div>
+      <div class="results-count" id="r-count"></div>
+    </div>
+    <div id="r-body"></div>
+  </div>
+
+  <footer><p>Fet amb ❤️ per a les famílies de <strong>Barcelona</strong> · Activitats generades per IA</p></footer>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+// Set your password here before uploading to GitHub:
+const APP_PASSWORD = "barcelona2025";
+// ────────────────────────────────────────────────────────────────────────────
+
+const I18N = {
+  ca:{
+    tag:"Famílies de Barcelona",title:"Troba <em>activitats</em><br>per als teus fills",
+    sub:"Activitats per a nens a Barcelona, filtrades per edat, barri i pressupost. Prioritzem les gratuïtes.",
+    l_age:"Edat del nen/a",l_district:"Districte",l_duration:"Durada",l_keyword:"Paraula clau",
+    c_free:"Gratuïtes primer",c_outdoor:"Aire lliure",c_indoor:"Interior",c_weekend:"Cap de setmana",c_weekday:"Dies feiners",
+    btn:"Buscar activitats",r_title:"Activitats trobades",loading:"Cercant activitats reals a la web…",
+    age:[["","Qualsevol edat"],["0-2","Bebès (0–2 anys)"],["2-4","Petits (2–4 anys)"],["4-8","Nens (4–8 anys)"],["8-12","Grans (8–12 anys)"],["12+","Adolescents (12+)"]],
+    dur:[["","Qualsevol durada"],["quick","Ràpida (1–2h)"],["half-day","Mitja jornada (2–4h)"],["full-day","Jornada completa"]],
+    d_first:"Tot Barcelona",kw_ph:"Ex: música, natura, art…",
+    b_free:"GRATIS",b_paid:"DE PAGAMENT",b_in:"INTERIOR",b_out:"EXTERIOR",b_wknd:"CAP DE SETMANA",b_wkdy:"DIES FEINERS",
+    reg:"Inscripció / Més info →",no_link:"Sense link disponible",
+    err:"Error en la cerca. Comprova la API key.",empty_t:"Sense resultats",empty_s:"Prova a canviar els filtres.",n:"activitats",
+    api_ph:"Enganxa la teva Anthropic API key (sk-ant-...)",
+    lang_name:"Catalan"
+  },
+  es:{
+    tag:"Familias de Barcelona",title:"Encuentra <em>actividades</em><br>para tus hijos",
+    sub:"Actividades para niños en Barcelona, filtradas por edad, barrio y presupuesto. Priorizamos las gratuitas.",
+    l_age:"Edad del niño/a",l_district:"Distrito",l_duration:"Duración",l_keyword:"Palabra clave",
+    c_free:"Gratuitas primero",c_outdoor:"Aire libre",c_indoor:"Interior",c_weekend:"Fin de semana",c_weekday:"Días laborables",
+    btn:"Buscar actividades",r_title:"Actividades encontradas",loading:"Buscando actividades reales en la web…",
+    age:[["","Cualquier edad"],["0-2","Bebés (0–2 años)"],["2-4","Pequeños (2–4 años)"],["4-8","Niños (4–8 años)"],["8-12","Mayores (8–12 años)"],["12+","Adolescentes (12+)"]],
+    dur:[["","Cualquier duración"],["quick","Rápida (1–2h)"],["half-day","Media jornada (2–4h)"],["full-day","Jornada completa"]],
+    d_first:"Todo Barcelona",kw_ph:"Ej: música, naturaleza, arte…",
+    b_free:"GRATIS",b_paid:"DE PAGO",b_in:"INTERIOR",b_out:"EXTERIOR",b_wknd:"FIN DE SEMANA",b_wkdy:"DÍAS LABORABLES",
+    reg:"Inscripción / Más info →",no_link:"Sin enlace disponible",
+    err:"Error en la búsqueda. Comprueba la API key.",empty_t:"Sin resultados",empty_s:"Prueba a cambiar los filtros.",n:"actividades",
+    api_ph:"Pega tu Anthropic API key (sk-ant-...)",
+    lang_name:"Spanish"
+  },
+  en:{
+    tag:"Barcelona Families",title:"Find <em>activities</em><br>for your kids",
+    sub:"Kids' activities in Barcelona filtered by age, neighbourhood and budget. Free activities shown first.",
+    l_age:"Child's age",l_district:"District",l_duration:"Duration",l_keyword:"Keyword",
+    c_free:"Free first",c_outdoor:"Outdoors",c_indoor:"Indoors",c_weekend:"Weekend",c_weekday:"Weekdays",
+    btn:"Find activities",r_title:"Activities found",loading:"Searching the web for real activities…",
+    age:[["","Any age"],["0-2","Babies (0–2 yrs)"],["2-4","Toddlers (2–4 yrs)"],["4-8","Kids (4–8 yrs)"],["8-12","Older kids (8–12 yrs)"],["12+","Teens (12+)"]],
+    dur:[["","Any duration"],["quick","Quick (1–2h)"],["half-day","Half day (2–4h)"],["full-day","Full day"]],
+    d_first:"All Barcelona",kw_ph:"E.g. music, nature, art…",
+    b_free:"FREE",b_paid:"PAID",b_in:"INDOOR",b_out:"OUTDOOR",b_wknd:"WEEKEND",b_wkdy:"WEEKDAYS",
+    reg:"Register / More info →",no_link:"No link available",
+    err:"Search error. Check your API key.",empty_t:"No results",empty_s:"Try adjusting your filters.",n:"activities",
+    api_ph:"Paste your Anthropic API key (sk-ant-...)",
+    lang_name:"English"
+  }
+};
+
+const DISTRICTS = ["Eixample","Gràcia","Sarrià-Sant Gervasi","Sant Martí / Poblenou","Sants-Montjuïc","Horta-Guinardó","Nou Barris","Sant Andreu","Ciutat Vella","Les Corts"];
+const CAT_ICON = {park:"🌳",museum:"🏛️",music:"🎵",sport:"⚽",art:"🎨",science:"🔬",nature:"🌿",beach:"🏖️",swimming:"🏊",theatre:"🎭",library:"📚",cooking:"👨‍🍳",animals:"🐾",playground:"🛝",default:"🎯"};
+const CAT_BG   = {park:"#D1FAE5",museum:"#DBEAFE",music:"#EDE9FE",sport:"#FEE2E2",art:"#FCE7F3",science:"#DBEAFE",nature:"#D1FAE5",beach:"#FEF3C7",swimming:"#BFDBFE",theatre:"#EDE9FE",library:"#FEF9C3",cooking:"#FED7AA",animals:"#D1FAE5",playground:"#FEE2E2",default:"#FEF3C7"};
+function getIcon(cat=""){ const k=Object.keys(CAT_ICON).find(k=>(cat||"").toLowerCase().includes(k))||"default"; return {icon:CAT_ICON[k],bg:CAT_BG[k]}; }
+
+let currentLang = "ca";
+let apiKey = "";
+const chips = {free:true,outdoor:false,indoor:false,weekend:false,weekday:false};
+
+// ── PASSWORD ─────────────────────────────────────────────────────────────────
+function checkPw(){
+  const val = document.getElementById("pw-input").value;
+  if(val === APP_PASSWORD){
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    initApp();
+  } else {
+    document.getElementById("pw-err").style.display = "block";
+    document.getElementById("pw-input").value = "";
+    document.getElementById("pw-input").focus();
+  }
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+function initApp(){
+  setLang("ca");
+  document.getElementById("pw-input").focus();
+}
+
+function setLang(l){
+  currentLang = l;
+  const t = I18N[l];
+  document.querySelectorAll(".lang-btn").forEach(b=>b.classList.remove("active"));
+  document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`).classList.add("active");
+  document.getElementById("h-tag").textContent = t.tag;
+  document.getElementById("h-title").innerHTML = t.title;
+  document.getElementById("h-sub").textContent = t.sub;
+  document.getElementById("l-age").textContent = t.l_age;
+  document.getElementById("l-district").textContent = t.l_district;
+  document.getElementById("l-duration").textContent = t.l_duration;
+  document.getElementById("l-keyword").textContent = t.l_keyword;
+  document.getElementById("c-free").textContent = t.c_free;
+  document.getElementById("c-outdoor").textContent = t.c_outdoor;
+  document.getElementById("c-indoor").textContent = t.c_indoor;
+  document.getElementById("c-weekend").textContent = t.c_weekend;
+  document.getElementById("c-weekday").textContent = t.c_weekday;
+  document.getElementById("btn-label").textContent = t.btn;
+  document.getElementById("r-title").textContent = t.r_title;
+  document.getElementById("f-keyword").placeholder = t.kw_ph;
+  document.getElementById("api-key-input").placeholder = t.api_ph;
+
+  // Rebuild selects
+  const ageEl = document.getElementById("f-age");
+  ageEl.innerHTML = t.age.map(([v,lb])=>`<option value="${v}">${lb}</option>`).join("");
+  const durEl = document.getElementById("f-duration");
+  durEl.innerHTML = t.dur.map(([v,lb])=>`<option value="${v}">${lb}</option>`).join("");
+  const disEl = document.getElementById("f-district");
+  disEl.innerHTML = `<option value="">${t.d_first}</option>` + DISTRICTS.map(d=>`<option value="${d}">${d}</option>`).join("");
+}
+
+function toggleChip(name){
+  chips[name] = !chips[name];
+  document.getElementById("chip-"+name).classList.toggle("on", chips[name]);
+}
+
+function saveApiKey(val){ apiKey = val.trim(); }
+
+function toggleApiVis(){
+  const inp = document.getElementById("api-key-input");
+  inp.type = inp.type === "password" ? "text" : "password";
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────────
+async function doSearch(){
+  const t = I18N[currentLang];
+  if(!apiKey){ alert(t.api_ph); return; }
+
+  const age      = document.getElementById("f-age").value;
+  const district = document.getElementById("f-district").value;
+  const duration = document.getElementById("f-duration").value;
+  const keyword  = document.getElementById("f-keyword").value;
+
+  document.getElementById("search-btn").disabled = true;
+  document.getElementById("results-section").style.display = "block";
+  document.getElementById("r-body").innerHTML = `<div class="loading-box"><div class="spinner"></div><div class="loading-txt">${t.loading}</div></div>`;
+  document.getElementById("r-count").textContent = "";
+
+  const prompt = `You are an expert local guide for Barcelona families. Your task is TWO steps:
+
+STEP 1: Use the web_search tool to search for real child-friendly activities in Barcelona matching:
+- Age group: ${age||"any"}
+- District: ${district||"anywhere in Barcelona"}
+- Duration: ${duration||"any"}
+- Keyword: ${keyword||"none"}
+- Prefer free: ${chips.free}, Outdoor: ${chips.outdoor}, Indoor: ${chips.indoor}, Weekend: ${chips.weekend}, Weekday: ${chips.weekday}
+${chips.free?"Prioritize free or low-cost activities.":""}
+Search bcn.cat, barcelonaturisme.com, timeout.es, and official venue websites. For each activity, use web_search to find its REAL official website URL.
+
+STEP 2: Return ONLY a valid JSON array of exactly 6 activities. No markdown, no preamble. Each object:
+title (in ${t.lang_name}), description (2-3 sentences in ${t.lang_name}), category (park|museum|music|sport|art|science|nature|beach|swimming|theatre|library|cooking|animals|playground|default), district, ageRange, cost, isFree (boolean), setting (interior|exterior), when, duration, tip (in ${t.lang_name}), websiteUrl (ONLY real verified URLs from your search, or null)`;
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-api-key": apiKey,
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body: JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:4000,
+        tools:[{type:"web_search_20250305",name:"web_search"}],
+        messages:[{role:"user",content:prompt}]
+      })
+    });
+    const data = await resp.json();
+    if(data.error) throw new Error(data.error.message);
+    const raw = data.content.filter(b=>b.type==="text").map(b=>b.text||"").join("");
+    const s = raw.indexOf("["), e = raw.lastIndexOf("]");
+    if(s===-1||e===-1) throw new Error("No JSON found");
+    const activities = JSON.parse(raw.slice(s,e+1));
+    renderCards(activities, t);
+  } catch(err){
+    document.getElementById("r-body").innerHTML = `<div class="err-box">⚠️ ${t.err} — ${err.message}</div>`;
+  }
+  document.getElementById("search-btn").disabled = false;
+}
+
+function renderCards(activities, t){
+  document.getElementById("r-count").textContent = `${activities.length} ${t.n}`;
+  if(!activities.length){
+    document.getElementById("r-body").innerHTML = `<div class="empty-box"><div class="empty-icon">🔍</div><h3>${t.empty_t}</h3><p>${t.empty_s}</p></div>`;
+    return;
+  }
+  const html = activities.map((a,i)=>{
+    const {icon,bg} = getIcon(a.category);
+    const isFree = a.isFree;
+    const isOut  = (a.setting||"").toLowerCase().includes("exter")||(a.setting||"").toLowerCase().includes("outdoor");
+    const wl     = (a.when||"").toLowerCase();
+    const isWknd = wl.includes("cap")||wl.includes("week")||wl.includes("fin");
+    const isWkdy = wl.includes("feiner")||wl.includes("laboral")||wl.includes("weekday");
+    const linkHtml = (a.websiteUrl && a.websiteUrl!=="null")
+      ? `<a class="reg-btn" href="${a.websiteUrl}" target="_blank" rel="noopener noreferrer">🔗 ${t.reg}</a>`
+      : `<div class="reg-btn-none">🔗 ${t.no_link}</div>`;
+    return `
+    <div class="acard" style="animation:fadeUp .4s ease ${i*0.07}s both">
+      <div class="card-top">
+        <div class="card-icon" style="background:${bg}">${icon}</div>
+        <div class="badges">
+          <span class="badge ${isFree?'b-free':'b-paid'}">${isFree?t.b_free:t.b_paid}</span>
+          <span class="badge ${isOut?'b-out':'b-in'}">${isOut?t.b_out:t.b_in}</span>
+          ${isWknd?`<span class="badge b-wknd">${t.b_wknd}</span>`:""}
+          ${isWkdy?`<span class="badge b-wkdy">${t.b_wkdy}</span>`:""}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">${a.title}</div>
+        <div class="card-desc">${a.description}</div>
+        ${a.tip?`<div class="card-tip">💡 ${a.tip}</div>`:""}
+        <div class="card-meta">
+          <div class="meta-item">📍 <strong>${a.district}</strong></div>
+          <div class="meta-item">👶 <strong>${a.ageRange}</strong></div>
+          <div class="meta-item">⏱️ <strong>${a.duration}</strong></div>
+          <div class="meta-item">💶 <strong>${a.cost}</strong></div>
+        </div>
+        ${linkHtml}
+      </div>
+    </div>`;
+  }).join("");
+  document.getElementById("r-body").innerHTML = `<div class="cards-grid">${html}</div>`;
+}
+</script>
+<style>
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</body>
+</html>
